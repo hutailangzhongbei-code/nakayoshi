@@ -21,38 +21,26 @@ def generate_instagram_post(genre, target, purpose, content, char_count=600):
     brand_rule = load_brand_rules()
     
     system_prompt = f"""
-あなたは「中美建設」のトップマーケター・SNS広報担当です。
-社名は必ず「中美建設」と正確に表記し、ブランドルールを遵守してください。
+あなたは「中美建設」のプロのSNS広報担当者です。
+社名は必ず「中美建設」と表記し、ブランドルールを厳守してください。
 
 【ブランドルール】
 {brand_rule}
 
-【出力フォーマット】必ず以下のJSON形式のみで出力してください。
+【出力フォーマット】必ず以下のJSON形式のみで返答してください。
 {{
-  "title": "投稿のメインタイトル（表紙用）",
-  "catchphrase": "視線を惹きつけるインパクトのあるキャッチコピー",
-  "carousel": [
-    "1枚目（表紙）: 内容",
-    "2枚目: 内容",
-    "3枚目: 内容",
-    "4枚目: 内容",
-    "5枚目（CTA）: 内容"
-  ],
-  "canva_layout": "Canvaで作成する際のおすすめレイアウト・配置・フォント感のアドバイス",
-  "photo_instructions": "どのような構図・光の当たり方の写真を用意すべきかの撮影指示",
-  "caption": "絵文字交え本文（目安文字数: 約{char_count}文字）。会社名は中美建設。",
-  "hashtags": "#中美建設 #三重注文住宅 #工務店がつくる家 #施工事例",
-  "posting_time": "推奨：火・木・土曜日の朝7〜8時 または 夜20〜21時（理由付き）",
-  "growth_reason": "この投稿構成やターゲット設定により保存率・インプレッションが伸ばせる理由"
+  "title": "投稿タイトル",
+  "catchphrase": "キャッチコピー",
+  "carousel": ["1枚目: 表紙", "2枚目: ポイント", "3枚目: 詳細", "4枚目: まとめ", "5枚目: CTA"],
+  "canva_layout": "Canvaデザインのアドバイス",
+  "photo_instructions": "撮影・画像選定の指示",
+  "caption": "キャプション本文",
+  "hashtags": "#中美建設 #施工事例 #注文住宅",
+  "posting_time": "推奨投稿時間帯",
+  "growth_reason": "伸ばすためのポイント"
 }}
 """
-    user_prompt = f"""
-投稿ジャンル: {genre}
-ターゲット: {target}
-投稿目的: {purpose}
-伝えたい内容: {content}
-目標文字数: {char_count}文字程度
-"""
+    user_prompt = f"ジャンル:{genre}\nターゲット:{target}\n目的:{purpose}\n詳細:{content}\n文字数:{char_count}"
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
