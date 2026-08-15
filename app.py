@@ -126,8 +126,8 @@ st.sidebar.caption("© 中美建設")
 if menu == "Instagram投稿作成":
     st.markdown("<h1 class='main-header'>中美建設 AI広報部 - Instagram投稿作成</h1>", unsafe_allow_html=True)
     
-    if not os.getenv("OPENAI_API_KEY"):
-        st.error("⚠️ .env に OPENAI_API_KEY が設定されていません。")
+    if not os.getenv("GEMINI_API_KEY"):
+        st.error("⚠️ .env に GEMINI_API_KEY が設定されていません。")
 
     col1, col2 = st.columns([1, 1])
 
