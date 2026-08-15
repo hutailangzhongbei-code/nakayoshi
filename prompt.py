@@ -1,7 +1,6 @@
 import os
 import json
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 
 def load_brand_rules():
     rule_path = os.path.join("brand", "brand_rule.txt")
@@ -36,19 +35,19 @@ def save_brand_rules(content):
     with open(rule_path, "w", encoding="utf-8") as f:
         f.write(content)
 
-# Gemini Client初期化
-def get_client():
+# Gemini APIの初期化設定
+def configure_gemini():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY が設定されていません。")
-    return genai.Client(api_key=api_key)
+    genai.configure(api_key=api_key)
 
 # 1. Instagram投稿作成
 def generate_instagram_post(genre, target, purpose, content, char_count=600):
-    client = get_client()
+    configure_gemini()
     brand_rule = load_brand_rules()
     
-    system_prompt = f"""
+    prompt = f"""
 あなたは「中美建設」の専属トップマーケターおよびSNS広報担当です。
 以下の【中美建設 ブランドガイドライン】を100%厳格に適用し、ブランドイメージを損なわないアウトプットを出力してください。
 
@@ -63,8 +62,15 @@ def generate_instagram_post(genre, target, purpose, content, char_count=600):
 3. ハッシュタグには必ず #中美建設 を含めてください。
 4. Canvaレイアウトや撮影指示の提案においても、ブランドカラー（#5EB0B1 / #EEC600）やデザインルール（シンプル・スマホ閲覧優先）を反映させてください。
 
+【入力条件】
+・ジャンル: {genre}
+・ターゲット: {target}
+・目的: {purpose}
+・伝えたい内容: {content}
+・目標文字数: 約{char_count}文字
+
 【出力フォーマット】
-必ず以下のJSON形式のみで返答してください。
+必ず以下のJSON形式の文字列のみで返答してください（余計な解説文やMarkdownタグは含めないでください）。
 {{
   "title": "投稿のメインタイトル（表紙用）",
   "catchphrase": "ブランドイメージに沿ったキャッチコピー",
@@ -83,70 +89,74 @@ def generate_instagram_post(genre, target, purpose, content, char_count=600):
   "growth_reason": "ガイドラインに沿った発信がターゲット層に響く理由"
 }}
 """
-    user_prompt = f"【ジャンル】: {genre}\n【ターゲット】: {target}\n【目的】: {purpose}\n【伝えたい内容】: {content}\n【目標文字数】: 約{char_count}文字"
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            response_mime_type="application/json",
-            temperature=0.2
-        )
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(
+        prompt,
+        generation_config={"response_mime_type": "application/json", "temperature": 0.2}
     )
     return json.loads(response.text)
 
 # 2. リール企画
 def generate_reel(theme, target):
-    client = get_client()
+    configure_gemini()
     brand_rule = load_brand_rules()
 
-    system_prompt = f"あなたは中美建設のリールディレクターです。\n【ブランドルール】\n{brand_rule}\n\n以下のJSON形式で返答してください:\n{{\n  \"hook\": \"最初の3秒のフック\",\n  \"script\": \"動画構成・テロップ\",\n  \"music\": \"推奨BGMイメージ\"\n}}"
-    user_prompt = f"テーマ: {theme}\nターゲット: {target}"
+    prompt = f"""
+あなたは中美建設のリールディレクターです。
+【ブランドルール】
+{brand_rule}
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            response_mime_type="application/json",
-            temperature=0.3
-        )
+テーマ: {theme}
+ターゲット: {target}
+
+以下のJSON形式のみで返答してください:
+{{
+  "hook": "最初の3秒のフック",
+  "script": "動画構成・テロップ",
+  "music": "推奨BGMイメージ"
+}}
+"""
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(
+        prompt,
+        generation_config={"response_mime_type": "application/json", "temperature": 0.3}
     )
     return json.loads(response.text)
 
 # 3. ブログ作成
 def generate_blog(title_keyword, target):
-    client = get_client()
+    configure_gemini()
     brand_rule = load_brand_rules()
 
-    system_prompt = f"あなたは中美建設のライターです。\n【ブランドルール】\n{brand_rule}\nSEOを意識した丁寧なブログ記事（見出し・本文）を作成してください。会社名は必ず「中美建設」と表記してください。"
-    user_prompt = f"キーワード: {title_keyword}\n想定読者: {target}"
+    prompt = f"""
+あなたは中美建設のライターです。
+【ブランドルール】
+{brand_rule}
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            temperature=0.3
-        )
-    )
+キーワード: {title_keyword}
+想定読者: {target}
+
+SEOを意識した丁寧なブログ記事（見出し・本文）を作成してください。会社名は必ず「中美建設」と表記してください。
+"""
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(prompt)
     return response.text
 
 # 4. 撮影指示
 def generate_shooting(house_type, highlights):
-    client = get_client()
+    configure_gemini()
     brand_rule = load_brand_rules()
 
-    system_prompt = f"あなたは中美建設の撮影ディレクターです。\n【ブランドルール】\n{brand_rule}\n現場で使いやすい撮影カットリストと指示内容を作成してください。"
-    user_prompt = f"物件特徴: {house_type}\n見せたいポイント: {highlights}"
+    prompt = f"""
+あなたは中美建設の撮影ディレクターです。
+【ブランドルール】
+{brand_rule}
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=system_prompt,
-            temperature=0.3
-        )
-    )
+物件特徴: {house_type}
+見せたいポイント: {highlights}
+
+現場で使いやすい撮影カットリストと指示内容を作成してください。
+"""
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(prompt)
     return response.text
