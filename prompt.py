@@ -89,7 +89,7 @@ def generate_instagram_post(genre, target, purpose, content, char_count=600):
   "growth_reason": "ガイドラインに沿った発信がターゲット層に響く理由"
 }}
 """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
         generation_config={"response_mime_type": "application/json", "temperature": 0.2}
@@ -116,7 +116,7 @@ def generate_reel(theme, target):
   "music": "推奨BGMイメージ"
 }}
 """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(
         prompt,
         generation_config={"response_mime_type": "application/json", "temperature": 0.3}
@@ -138,7 +138,7 @@ def generate_blog(title_keyword, target):
 
 SEOを意識した丁寧なブログ記事（見出し・本文）を作成してください。会社名は必ず「中美建設」と表記してください。
 """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(prompt)
     return response.text
 
@@ -157,6 +157,6 @@ def generate_shooting(house_type, highlights):
 
 現場で使いやすい撮影カットリストと指示内容を作成してください。
 """
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash")
     response = model.generate_content(prompt)
     return response.text
