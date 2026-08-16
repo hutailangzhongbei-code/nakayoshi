@@ -14,74 +14,79 @@ from prompt import (
     save_brand_rules
 )
 
-# --- ページ設定 ---
+# --- ページ基本設定 ---
 st.set_page_config(
     page_title="中美建設 AI広報部",
     page_icon="🏠",
     layout="wide"
 )
 
-# --- カスタムCSS（ブランドガイドラインのカラー＆デザインルールを反映） ---
+# --- カスタムCSS（デザイン刷新） ---
 st.markdown("""
 <style>
-    /* 全体フォント（游ゴシック優先） */
-    html, body, [class*="css"] {
-        font-family: '游ゴシック', 'Yu Gothic', sans-serif;
-        color: #5A5A5A;
+    /* 全体背景とフォント設定 */
+    .stApp {
+        background-color: #F8FAFC;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
     
-    /* ヘッダー・タイトル */
-    .main-header {
-        color: #5EB0B1;
-        font-weight: bold;
-        border-bottom: 3px solid #5EB0B1;
-        padding-bottom: 10px;
+    /* カード風コンテナ */
+    .custom-card {
+        background-color: #FFFFFF;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid #E2E8F0;
         margin-bottom: 20px;
     }
-    
-    /* メインボタン */
-    .stButton>button {
-        background-color: #5EB0B1;
-        color: white;
-        font-weight: bold;
-        border-radius: 8px;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        width: 100%;
-    }
-    .stButton>button:hover {
-        background-color: #4A9798;
-        color: white;
-    }
-    
-    /* アクセント強調枠 */
-    .accent-box {
-        background-color: #FFFDF0;
-        border-left: 5px solid #EEC600;
-        padding: 15px;
-        border-radius: 6px;
-        margin-bottom: 15px;
-    }
-    
-    /* サブコンテンツカード */
-    .section-card {
-        background-color: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
+
+    /* タイトルヘッダー */
+    .main-title {
+        color: #2D3748;
+        font-size: 24px;
+        font-weight: 700;
+        border-left: 6px solid #5EB0B1;
+        padding-left: 12px;
+        margin-bottom: 20px;
     }
 
-    .hashtag-chip {
-        background-color: #e6f7f7;
-        color: #5EB0B1;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 500;
-        display: inline-block;
-        margin-right: 6px;
-        margin-bottom: 8px;
+    /* サブタイトル */
+    .sub-title {
+        color: #4A5568;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    /* アクセントハイライト */
+    .highlight-box {
+        background-color: #FFFDF0;
+        border: 1px solid #FEEBC8;
+        border-left: 5px solid #EEC600;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+    }
+
+    /* ボタンのスタイル強化 */
+    .stButton>button {
+        background-color: #5EB0B1 !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton>button:hover {
+        background-color: #4A9798 !important;
+        box-shadow: 0 4px 12px rgba(94, 176, 177, 0.3) !important;
+    }
+
+    /* サイドバーのカスタマイズ */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF;
+        border-right: 1px solid #E2E8F0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -91,7 +96,7 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 # --- サイドバー表示 ---
-st.sidebar.title("🏠 中美建設 AI広報部")
+st.sidebar.markdown("<h2 style='color: #5EB0B1; font-weight: bold;'>🏠 中美建設 AI広報部</h2>", unsafe_allow_html=True)
 
 menu = st.sidebar.radio(
     "メニューを選択",
@@ -101,146 +106,219 @@ menu = st.sidebar.radio(
         "ブログ作成",
         "撮影指示",
         "ブランドガイドライン",
-        "投稿履歴",
-        "── 今後追加予定 ──",
-        "Instagramトレンド分析",
-        "Instagram API連携",
-        "Canva連携",
-        "AI画像生成",
-        "外壁カラーシミュレーター",
-        "施工事例管理",
-        "投稿カレンダー",
-        "ブランドチェック機能",
-        "PDF出力",
-        "画像アップロード",
-        "複数ブランド対応"
+        "投稿履歴"
     ]
 )
 
 st.sidebar.markdown("---")
+with st.sidebar.expander("🚀 今後追加予定の機能"):
+    st.caption("""
+    ・Instagramトレンド分析  
+    ・Instagram API連携  
+    ・Canva連携  
+    ・AI画像生成  
+    ・施工事例管理  
+    ・投稿カレンダー
+    """)
+
 st.sidebar.caption("© 中美建設")
 
-# --- メインコンテンツ切り替え ---
+# --- メインコンテンツ ---
 
-# 1. Instagram投稿作成 画面
+# 1. Instagram投稿作成
 if menu == "Instagram投稿作成":
-    st.markdown("<h1 class='main-header'>中美建設 AI広報部 - Instagram投稿作成</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>Instagram投稿作成</div>", unsafe_allow_html=True)
     
     if not os.getenv("GEMINI_API_KEY"):
-        st.error("⚠️ .env に GEMINI_API_KEY が設定されていません。")
+        st.error("⚠️ 環境変数 GEMINI_API_KEY が設定されていません。")
 
-    col1, col2 = st.columns([1, 1])
+    col_input, col_result = st.columns([1, 1])
 
-    with col1:
-        st.subheader("📋 投稿条件の入力")
+    with col_input:
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-title'>📋 投稿条件を入力</div>", unsafe_allow_html=True)
         
-        genre = st.text_input("投稿ジャンル", placeholder="例: 施工事例 / 完成見学会 / 木の家 / リノベーション")
-        target = st.text_input("ターゲット", placeholder="例: 自然素材の家に憧れる30代子育て世代")
-        purpose = st.text_input("投稿目的", placeholder="例: 見学会予約の獲得 / 認知拡大 / ファン化")
-        content = st.text_area("伝えたい内容", placeholder="例: 木の温もりあふれる大空間LDK、家事動線に優れた回遊間取り、職人の造作家具", height=120)
-        char_count = st.slider("文字数（キャプション目安）", min_value=200, max_value=1500, value=600, step=50)
+        # クイックテンプレート入力
+        st.write("💡 クイック入力（テンプレート）:")
+        t_col1, t_col2 = st.columns(2)
+        if t_col1.button("🏡 完成見学会"):
+            st.session_state["genre"] = "完成見学会"
+            st.session_state["target"] = "30代子育て世代・自然素材の家に憧れるご夫婦"
+            st.session_state["purpose"] = "見学会の来場予約獲得"
+            st.session_state["content"] = "開放的な吹抜けLDKと、家事動線を考慮した回遊間取り。無垢材の心地よさを体感できるお家です。"
+        if t_col2.button("✨ 施工事例紹介"):
+            st.session_state["genre"] = "施工事例"
+            st.session_state["target"] = "注文住宅を検討中のファミリー"
+            st.session_state["purpose"] = "認知拡大・アカウントのファン化"
+            st.session_state["content"] = "木感が引き立つ造作キッチンとこだわりの和モダン外観。職人の手仕事が光る細部のデザイン。"
 
-        submit_btn = st.button("投稿を作成")
+        genre = st.text_input("投稿ジャンル", value=st.session_state.get("genre", ""), placeholder="例: 完成見学会 / 施工事例 / 木の家")
+        target = st.text_input("ターゲット", value=st.session_state.get("target", ""), placeholder="例: 自然素材の家に憧れる30代夫婦")
+        purpose = st.text_input("投稿目的", value=st.session_state.get("purpose", ""), placeholder="例: 見学会予約の獲得 / ファン化")
+        content = st.text_area("伝えたい内容", value=st.session_state.get("content", ""), placeholder="例: 吹抜けLDK、無垢床、造作洗面台", height=100)
+        char_count = st.slider("文字数目安", min_value=200, max_value=1200, value=600, step=50)
 
-    with col2:
-        st.subheader("📄 生成結果")
+        submit_btn = st.button("✨ 投稿案を生成する", use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with col_result:
+        st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+        st.markdown("<div class='sub-title'>📄 生成結果</div>", unsafe_allow_html=True)
         
         if submit_btn:
             if not genre or not target or not purpose or not content:
                 st.warning("すべての入力項目（ジャンル・ターゲット・目的・伝えたい内容）を入力してください。")
             else:
-                with st.spinner("AIが最新トレンド分析とブランドルールを適用して生成中..."):
+                with st.spinner("ブランドガイドラインに沿って生成中..."):
                     try:
                         res = generate_instagram_post(genre, target, purpose, content, char_count)
-
-                        st.markdown(f"### 📌 タイトル\n**{res.get('title')}**")
-                        
-                        st.markdown("<div class='accent-box'>", unsafe_allow_html=True)
-                        st.markdown(f"### 💡 キャッチコピー\n**{res.get('catchphrase')}**")
-                        st.markdown("</div>", unsafe_allow_html=True)
-
-                        st.markdown("### 🖼️ カルーセル構成")
-                        for slide in res.get('carousel', []):
-                            st.write(f"- {slide}")
-
-                        st.markdown("### 🎨 Canvaレイアウト")
-                        st.info(res.get('canva_layout'))
-
-                        st.markdown("### 📷 撮影指示")
-                        st.warning(res.get('photo_instructions'))
-
-                        st.markdown("### 📝 キャプション")
-                        st.code(res.get('caption'), language=None)
-
-                        st.markdown("### 🏷️ ハッシュタグ")
-                        st.code(res.get('hashtags'), language=None)
-
-                        st.markdown("### ⏰ 投稿時間")
-                        st.write(res.get('posting_time'))
-
-                        st.markdown("### 📈 伸びる理由")
-                        st.success(res.get('growth_reason'))
-
+                        st.session_state["latest_res"] = res
                         st.session_state.history.append({"type": "Instagram", "title": res.get('title'), "content": res.get('caption')})
-
                     except Exception as e:
                         st.error(f"エラーが発生しました: {e}")
 
+        if "latest_res" in st.session_state and st.session_state["latest_res"]:
+            res = st.session_state["latest_res"]
+            
+            # 結果をタブで整理
+            tab1, tab2, tab3 = st.tabs(["📝 キャプション・ハッシュタグ", "🖼️ カルーセル・デザイン", "💡 撮影・分析"])
+
+            with tab1:
+                st.markdown(f"**タイトル:** {res.get('title')}")
+                st.markdown("<div class='highlight-box'>", unsafe_allow_html=True)
+                st.markdown(f"**キャッチコピー:**\n{res.get('catchphrase')}")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+                st.write("▼ キャプション（コピーしてそのまま使えます）")
+                st.code(res.get('caption'), language=None)
+                
+                st.write("▼ ハッシュタグ")
+                st.code(res.get('hashtags'), language=None)
+
+            with tab2:
+                st.markdown("### 🖼️ カルーセル構成案")
+                for slide in res.get('carousel', []):
+                    st.info(slide)
+
+                st.markdown("### 🎨 Canvaレイアウト指示")
+                st.write(res.get('canva_layout'))
+
+            with tab3:
+                st.markdown("### 📷 撮影指示")
+                st.warning(res.get('photo_instructions'))
+
+                st.markdown("### ⏰ 推奨投稿時間")
+                st.write(res.get('posting_time'))
+
+                st.markdown("### 📈 ポイント")
+                st.success(res.get('growth_reason'))
+        else:
+            st.info("左側のフォームに入力し、「投稿案を生成する」を押してください。")
+            
+        st.markdown("</div>", unsafe_allow_html=True)
+
 # 2. リール企画
 elif menu == "リール企画":
-    st.markdown("<h1 class='main-header'>リール企画案作成</h1>", unsafe_allow_html=True)
-    theme = st.text_input("動画テーマ", placeholder="例：ルームツアー、失敗しない間取りの選び方")
+    st.markdown("<div class='main-title'>リール企画案作成</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+    theme = st.text_input("動画テーマ", placeholder="例：ルームツアー、平屋のメリット3選")
     target = st.text_input("ターゲット", placeholder="例：子育て世代の夫婦")
-    if st.button("リール企画を生成"):
+    btn = st.button("リール企画を生成", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if btn:
         if theme and target:
             with st.spinner("生成中..."):
-                res = generate_reel(theme, target)
-                st.markdown(f"### 🪝 フック\n{res.get('hook')}")
-                st.markdown(f"### 🎬 構成案\n{res.get('script')}")
-                st.markdown(f"### 🎵 BGM\n{res.get('music')}")
+                try:
+                    res = generate_reel(theme, target)
+                    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+                    st.markdown(f"### 🪝 フック（冒頭3秒）\n**{res.get('hook')}**")
+                    st.markdown("### 🎬 構成・テロップ案")
+                    st.code(res.get('script'), language=None)
+                    st.markdown(f"### 🎵 BGMイメージ\n{res.get('music')}")
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    st.session_state.history.append({"type": "リール", "title": theme, "content": f"フック: {res.get('hook')}\n\n構成:\n{res.get('script')}"})
+                except Exception as e:
+                    st.error(f"エラーが発生しました: {e}")
+        else:
+            st.warning("動画テーマとターゲットを入力してください。")
 
 # 3. ブログ作成
 elif menu == "ブログ作成":
-    st.markdown("<h1 class='main-header'>ブログ・Web記事作成</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>ブログ・Web記事作成</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
     title_kw = st.text_input("キーワード / テーマ", placeholder="例：注文住宅 高気密高断熱 三重県")
     target = st.text_input("想定読者", placeholder="例：冬暖かい家を建てたいファミリー")
-    if st.button("ブログを生成"):
-        if title_kw:
+    btn = st.button("ブログ記事を生成", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if btn:
+        if title_kw and target:
             with st.spinner("生成中..."):
-                res = generate_blog(title_kw, target)
-                st.text_area("本文", value=res, height=350)
+                try:
+                    res = generate_blog(title_kw, target)
+                    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+                    st.markdown("### 📄 生成されたブログ文章")
+                    st.code(res, language=None)
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    st.session_state.history.append({"type": "ブログ", "title": title_kw, "content": res})
+                except Exception as e:
+                    st.error(f"エラーが発生しました: {e}")
+        else:
+            st.warning("キーワードと想定読者を入力してください。")
 
 # 4. 撮影指示
 elif menu == "撮影指示":
-    st.markdown("<h1 class='main-header'>現場・物件 撮影指示書作成</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>現場・物件 撮影指示書作成</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
     house_type = st.text_input("物件特徴", placeholder="例：開放感のある吹抜けリビングと平屋風動線")
     highlights = st.text_area("特に見せたいポイント", placeholder="例：造作キッチン、無垢材の床、玄関手洗い")
-    if st.button("指示書を生成"):
-        if house_type:
-            with st.spinner("生成中..."):
-                res = generate_shooting(house_type, highlights)
-                st.text_area("指示内容", value=res, height=300)
+    btn = st.button("撮影指示書を生成", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# 5. ブランドガイドライン 画面
+    if btn:
+        if house_type and highlights:
+            with st.spinner("生成中..."):
+                try:
+                    res = generate_shooting(house_type, highlights)
+                    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+                    st.markdown("### 📷 撮影カットリスト")
+                    st.code(res, language=None)
+                    st.markdown("</div>", unsafe_allow_html=True)
+                    st.session_state.history.append({"type": "撮影指示", "title": house_type, "content": res})
+                except Exception as e:
+                    st.error(f"エラーが発生しました: {e}")
+        else:
+            st.warning("物件特徴と見せたいポイントを入力してください。")
+
+# 5. ブランドガイドライン
 elif menu == "ブランドガイドライン":
-    st.markdown("<h1 class='main-header'>ブランドガイドライン</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>ブランドガイドライン管理</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
     current_rule = load_brand_rules()
-    new_rule = st.text_area("brand/brand_rule.txt の内容", current_rule, height=400)
-    if st.button("ガイドラインを保存"):
+    new_rule = st.text_area("brand/brand_rule.txt の内容", current_rule, height=350)
+    if st.button("ガイドラインを更新・保存", use_container_width=True):
         save_brand_rules(new_rule)
-        st.success("ガイドラインを保存しました！")
+        st.success("ガイドラインを保存しました！今後の生成に即時反映されます。")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # 6. 投稿履歴
 elif menu == "投稿履歴":
-    st.markdown("<h1 class='main-header'>投稿履歴</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='main-title'>投稿履歴</div>", unsafe_allow_html=True)
+    
     if not st.session_state.history:
-        st.info("履歴はありません。")
+        st.info("まだ生成履歴はありません。")
     else:
-        for idx, item in enumerate(reversed(st.session_state.history)):
-            with st.expander(f"【{item['type']}】 {item['title']}"):
-                st.text_area(f"内容-{idx}", value=item["content"], height=150)
+        if st.button("履歴をすべてクリア"):
+            st.session_state.history = []
+            st.rerun()
 
-# 7. その他のメニュー（拡張用枠組み）
-else:
-    st.markdown(f"<h1 class='main-header'>{menu}</h1>", unsafe_allow_html=True)
-    st.info(f"【{menu}】機能は今後拡張可能な設計になっています。")
+        for idx, item in enumerate(reversed(st.session_state.history)):
+            st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
+            st.markdown(f"**【{item['type']}】 {item['title']}**")
+            st.code(item["content"], language=None)
+            st.markdown("</div>", unsafe_allow_html=True)
