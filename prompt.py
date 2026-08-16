@@ -43,7 +43,7 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
     init_gemini()
     brand_rule = load_brand_rules()
     
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     json_template = """{
     "title": "投稿タイトル",
@@ -80,7 +80,7 @@ def generate_reel(theme: str, target: str) -> dict:
     init_gemini()
     brand_rule = load_brand_rules()
 
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     json_template = """{
     "hook": "冒頭3秒のフック（惹きつけるテキストまたは演出）",
@@ -108,7 +108,7 @@ def generate_blog(title_kw: str, target: str) -> str:
     init_gemini()
     brand_rule = load_brand_rules()
 
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     system_prompt = (
         "あなたは住宅会社のWebライターです。\n"
@@ -129,7 +129,7 @@ def generate_shooting(house_type: str, highlights: str) -> str:
     init_gemini()
     brand_rule = load_brand_rules()
 
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     system_prompt = (
         "あなたは住宅建築のプロフェッショナルです。\n"
