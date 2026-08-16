@@ -45,23 +45,7 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
     
     model = genai.GenerativeModel("gemini-1.5-flash")
 
-    system_prompt = f"""
-あなたは住宅会社（中美建設）の優秀なSNSマーケター・AI広報です。
-以下の【ブランドガイドライン】を遵守して投稿を作成してください。
-
-【ブランドガイドライン】
-{brand_rule}
-
-【依頼内容】
-- 投稿ジャンル: {genre}
-- ターゲット: {target}
-- 投稿目的: {purpose}
-- 伝えたい内容: {content}
-- キャプション文字数目安: {char_count}文字程度
-
-以下のキーを持つ完全なJSONフォーマットのみで出力してください。
-
-{{
+    json_template = """{
     "title": "投稿タイトル",
     "catchphrase": "キャッチコピー（1行）",
     "caption": "Instagram本文キャプション",
@@ -71,8 +55,22 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
     "photo_instructions": "撮影現場への写真アングルやライティングの指示",
     "posting_time": "おすすめの投稿曜日・時間帯とその理由",
     "growth_reason": "この投稿がターゲットに響く理由・アルゴリズム上の狙い"
-}}
-"""
+}"""
+
+    system_prompt = (
+        "あなたは住宅会社（中美建設）の優秀なSNSマーケター・AI広報です。\n"
+        "以下の【ブランドガイドライン】を遵守して投稿を作成してください。\n\n"
+        "【ブランドガイドライン】\n"
+        f"{brand_rule}\n\n"
+        "【依頼内容】\n"
+        f"- 投稿ジャンル: {genre}\n"
+        f"- ターゲット: {target}\n"
+        f"- 投稿目的: {purpose}\n"
+        f"- 伝えたい内容: {content}\n"
+        f"- キャプション文字数目安: {char_count}文字程度\n\n"
+        "以下のキーを持つ完全なJSONフォーマットのみで出力してください。\n\n"
+        f"{json_template}"
+    )
 
     response = model.generate_content(system_prompt)
     return clean_json_response(response.text)
@@ -84,24 +82,23 @@ def generate_reel(theme: str, target: str) -> dict:
 
     model = genai.GenerativeModel("gemini-1.5-flash")
 
-    system_prompt = f"""
-あなたは住宅会社（中美建設）のSNSマーケターです。
-リール動画の企画案を作成してください。
-
-【ブランドガイドライン】
-{brand_rule}
-
-【条件】
-- 動画テーマ: {theme}
-- ターゲット: {target}
-
-以下のJSONフォーマットのみで出力してください。
-{{
+    json_template = """{
     "hook": "冒頭3秒のフック（惹きつけるテキストまたは演出）",
     "script": "【0〜3秒】フック\\n【3〜10秒】シーン1の映像とテロップ\\n【10〜20秒】シーン2の映像とテロップ\\n【20〜30秒】まとめ・CTA",
     "music": "おすすめの音源・BGMの雰囲気"
-}}
-"""
+}"""
+
+    system_prompt = (
+        "あなたは住宅会社（中美建設）のSNSマーケターです。\n"
+        "リール動画の企画案を作成してください。\n\n"
+        "【ブランドガイドライン】\n"
+        f"{brand_rule}\n\n"
+        "【条件】\n"
+        f"- 動画テーマ: {theme}\n"
+        f"- ターゲット: {target}\n\n"
+        "以下のJSONフォーマットのみで出力してください。\n"
+        f"{json_template}"
+    )
 
     response = model.generate_content(system_prompt)
     return clean_json_response(response.text)
@@ -113,19 +110,16 @@ def generate_blog(title_kw: str, target: str) -> str:
 
     model = genai.GenerativeModel("gemini-1.5-flash")
 
-    system_prompt = f"""
-あなたは住宅会社（中美建設）のWebライターです。
-SEOを意識したブログ記事・Web記事を作成してください。
-
-【ブランドガイドライン】
-{brand_rule}
-
-【条件】
-- キーワード/テーマ: {title_kw}
-- 想定読者: {target}
-
-見出し（H2, H3）を適切に使い、読者が惹き込まれる自然でわかりやすい文章を作成してください。
-"""
+    system_prompt = (
+        "あなたは住宅会社（中美建設）のWebライターです。\n"
+        "SEOを意識したブログ記事・Web記事を作成してください。\n\n"
+        "【ブランドガイドライン】\n"
+        f"{brand_rule}\n\n"
+        "【条件】\n"
+        f"- キーワード/テーマ: {title_kw}\n"
+        f"- 想定読者: {target}\n\n"
+        "見出し（H2, H3）を適切に使い、読者が惹き込まれる自然でわかりやすい文章を作成してください。"
+    )
 
     response = model.generate_content(system_prompt)
     return response.text
@@ -137,19 +131,16 @@ def generate_shooting(house_type: str, highlights: str) -> str:
 
     model = genai.GenerativeModel("gemini-1.5-flash")
 
-    system_prompt = f"""
-あなたは住宅建築のプロフェッショナルです。
-ルームツアー動画やSNS投稿用写真のための「撮影指示書」を作成してください。
-
-【ブランドガイドライン】
-{brand_rule}
-
-【条件】
-- 物件特徴: {house_type}
-- 見せたいポイント: {highlights}
-
-カメラマンや現場スタッフが迷わないよう、具体的な撮影アングル、時間帯、小物の配置、光の取り込み方などをリスト形式で作成してください。
-"""
+    system_prompt = (
+        "あなたは住宅建築のプロフェッショナルです。\n"
+        "ルームツアー動画やSNS投稿用写真のための「撮影指示書」を作成してください。\n\n"
+        "【ブランドガイドライン】\n"
+        f"{brand_rule}\n\n"
+        "【条件】\n"
+        f"- 物件特徴: {house_type}\n"
+        f"- 見せたいポイント: {highlights}\n\n"
+        "カメラマンや現場スタッフが迷わないよう、具体的な撮影アングル、時間帯、小物の配置、光の取り込み方などをリスト形式で作成してください。"
+    )
 
     response = model.generate_content(system_prompt)
     return response.text
