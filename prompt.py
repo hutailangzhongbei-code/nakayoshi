@@ -9,42 +9,31 @@ def init_gemini():
         raise ValueError("GEMINI_API_KEY が設定されていません。")
     genai.configure(api_key=api_key)
 
-# --- 利用可能な最新モデルを自動検証・選択する関数 ---
-def get_model():
+# --- エラー時に使えるモデルを順番に試す自動リトライ生成関数 ---
+def generate_with_fallback(prompt_text: str) -> str:
     init_gemini()
     
-    # 現在推奨される最新モデルの優先順序リスト
+    # 試行するモデルの優先順序リスト
     candidate_models = [
         "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
-        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash",
         "gemini-1.5-pro",
         "gemini-pro"
     ]
     
-    try:
-        # APIキーで利用可能な生成モデルの一覧を取得
-        available_models = [
-            m.name.replace("models/", "")
-            for m in genai.list_models()
-            if "generateContent" in m.supported_generation_methods
-        ]
-        
-        # 候補リストの中で、API一覧に存在し、かつエラーになりにくいものを優先選択
-        for candidate in candidate_models:
-            if candidate in available_models:
-                return genai.GenerativeModel(candidate)
-        
-        # 候補にない場合、available_models から 2.0 / 1.5 系を検索
-        for model_name in available_models:
-            if "2.0" in model_name or "flash" in model_name:
-                return genai.GenerativeModel(model_name)
-                
-    except Exception as e:
-        print(f"Model list fetch failed: {e}")
-        
-    # フォールバック（最新の推奨標準モデル）
-    return genai.GenerativeModel("gemini-2.0-flash")
+    last_exception = None
+    
+    for model_name in candidate_models:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt_text)
+            if response and response.text:
+                return response.text
+        except Exception as e:
+            last_exception = e
+            continue  # エラーが起きた場合は次のモデルを試す
+            
+    raise RuntimeError(f"利用可能なモデルが見つかりませんでした。詳細: {last_exception}")
 
 # --- ブランドルール読み込み・保存機能 ---
 BRAND_RULE_PATH = "brand/brand_rule.txt"
@@ -78,7 +67,6 @@ def clean_json_response(text: str) -> dict:
 # --- 1. Instagram投稿生成 ---
 def generate_instagram_post(genre: str, target: str, purpose: str, content: str, char_count: int = 600) -> dict:
     brand_rule = load_brand_rules()
-    model = get_model()
 
     json_template = """{
     "title": "投稿タイトル",
@@ -107,13 +95,12 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
         + json_template
     )
 
-    response = model.generate_content(system_prompt)
-    return clean_json_response(response.text)
+    response_text = generate_with_fallback(system_prompt)
+    return clean_json_response(response_text)
 
 # --- 2. リール企画生成 ---
 def generate_reel(theme: str, target: str) -> dict:
     brand_rule = load_brand_rules()
-    model = get_model()
 
     json_template = """{
     "hook": "冒頭3秒のフック（惹きつけるテキストまたは演出）",
@@ -133,13 +120,12 @@ def generate_reel(theme: str, target: str) -> dict:
         + json_template
     )
 
-    response = model.generate_content(system_prompt)
-    return clean_json_response(response.text)
+    response_text = generate_with_fallback(system_prompt)
+    return clean_json_response(response_text)
 
 # --- 3. ブログ作成 ---
 def generate_blog(title_kw: str, target: str) -> str:
     brand_rule = load_brand_rules()
-    model = get_model()
 
     system_prompt = (
         "あなたは住宅会社のWebライターです。\n"
@@ -152,13 +138,11 @@ def generate_blog(title_kw: str, target: str) -> str:
         "見出し（H2, H3）を適切に使い、読者が惹き込まれる自然でわかりやすい文章を作成してください。"
     )
 
-    response = model.generate_content(system_prompt)
-    return response.text
+    return generate_with_fallback(system_prompt)
 
 # --- 4. 撮影指示書作成 ---
 def generate_shooting(house_type: str, highlights: str) -> str:
     brand_rule = load_brand_rules()
-    model = get_model()
 
     system_prompt = (
         "あなたは住宅建築のプロフェッショナルです。\n"
@@ -171,5 +155,4 @@ def generate_shooting(house_type: str, highlights: str) -> str:
         "カメラマンや現場スタッフが迷わないよう、具体的な撮影アングル、時間帯、小物の配置、光の取り込み方などをリスト形式で作成してください。"
     )
 
-    response = model.generate_content(system_prompt)
-    return response.text
+    return generate_with_fallback(system_prompt)
