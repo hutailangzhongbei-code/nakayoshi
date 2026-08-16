@@ -12,48 +12,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 簡易パスワード認証機能 ---
-def check_password():
-    if "password_correct" not in st.session_state:
-        st.session_state["password_correct"] = False
-
-    if st.session_state["password_correct"]:
-        return True
-
-    st.markdown("""
-    <style>
-        .login-box {
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 30px;
-            background-color: #FFFFFF;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid #E2E8F0;
-            text-align: center;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown("## 🔒 関係者専用アクセス")
-        st.caption("利用するにはパスワードを入力してください。")
-        
-        password_input = st.text_input("パスワード", type="password", key="login_password_field")
-        
-        if st.button("ログイン", use_container_width=True):
-            if password_input == "1118":
-                st.session_state["password_correct"] = True
-                st.rerun()
-            else:
-                st.error("パスワードが正しくありません。")
-                
-    return False
-
-if not check_password():
-    st.stop()
-
 # --- prompt.py から関数を呼び出し ---
 from prompt import (
     generate_instagram_post, 
@@ -126,12 +84,6 @@ if "history" not in st.session_state:
 
 # --- サイドバー ---
 st.sidebar.markdown("<h2 style='color: #5EB0B1; font-weight: bold;'>🏠 AI広報部</h2>", unsafe_allow_html=True)
-
-if st.sidebar.button("🔒 ログアウト"):
-    st.session_state["password_correct"] = False
-    st.rerun()
-
-st.sidebar.markdown("---")
 
 menu = st.sidebar.radio(
     "メニューを選択",
