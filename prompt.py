@@ -9,6 +9,43 @@ def init_gemini():
         raise ValueError("GEMINI_API_KEY が設定されていません。")
     genai.configure(api_key=api_key)
 
+# --- 利用可能なモデルを自動取得・選択する関数 ---
+def get_model():
+    init_gemini()
+    
+    # 優先して使いたいモデル名のリスト
+    preferred_models = [
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-latest",
+        "gemini-1.5-flash-001",
+        "gemini-1.5-flash-002",
+        "gemini-pro"
+    ]
+    
+    try:
+        # APIキーで現在利用可能な「文章生成対応モデル」の一覧を取得
+        supported = [
+            m.name.replace("models/", "")
+            for m in genai.list_models()
+            if "generateContent" in m.supported_generation_methods
+        ]
+        
+        # 優先リストの中から使えるものを探す
+        for p in preferred_models:
+            if p in supported:
+                return genai.GenerativeModel(p)
+        
+        # 優先リストになくても、利用可能な最初のモデルを採用
+        if supported:
+            return genai.GenerativeModel(supported[0])
+            
+    except Exception as e:
+        print(f"Model list fetch failed: {e}")
+        
+    # フォールバック
+    return genai.GenerativeModel("gemini-1.5-flash")
+
 # --- ブランドルール読み込み・保存機能 ---
 BRAND_RULE_PATH = "brand/brand_rule.txt"
 
@@ -40,10 +77,8 @@ def clean_json_response(text: str) -> dict:
 
 # --- 1. Instagram投稿生成 ---
 def generate_instagram_post(genre: str, target: str, purpose: str, content: str, char_count: int = 600) -> dict:
-    init_gemini()
     brand_rule = load_brand_rules()
-    
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = get_model()
 
     json_template = """{
     "title": "投稿タイトル",
@@ -77,10 +112,8 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
 
 # --- 2. リール企画生成 ---
 def generate_reel(theme: str, target: str) -> dict:
-    init_gemini()
     brand_rule = load_brand_rules()
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = get_model()
 
     json_template = """{
     "hook": "冒頭3秒のフック（惹きつけるテキストまたは演出）",
@@ -105,10 +138,8 @@ def generate_reel(theme: str, target: str) -> dict:
 
 # --- 3. ブログ作成 ---
 def generate_blog(title_kw: str, target: str) -> str:
-    init_gemini()
     brand_rule = load_brand_rules()
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = get_model()
 
     system_prompt = (
         "あなたは住宅会社のWebライターです。\n"
@@ -126,10 +157,8 @@ def generate_blog(title_kw: str, target: str) -> str:
 
 # --- 4. 撮影指示書作成 ---
 def generate_shooting(house_type: str, highlights: str) -> str:
-    init_gemini()
     brand_rule = load_brand_rules()
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = get_model()
 
     system_prompt = (
         "あなたは住宅建築のプロフェッショナルです。\n"
