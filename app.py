@@ -5,6 +5,62 @@ from dotenv import load_dotenv
 # 環境変数の読み込み
 load_dotenv()
 
+# --- ページ基本設定 ---
+st.set_page_config(
+    page_title="中美建設 AI広報部",
+    page_icon="🏠",
+    layout="wide"
+)
+
+# --- 簡易パスワード認証機能 ---
+def check_password():
+    # パスワード正解フラグの初期化
+    if "password_correct" not in st.session_state:
+        st.session_state["password_correct"] = False
+
+    # ログイン済みの場合はメイン画面を表示
+    if st.session_state["password_correct"]:
+        return True
+
+    # ログイン画面のデザイン・入力フォーム
+    st.markdown("""
+    <style>
+        .login-box {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 30px;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #E2E8F0;
+            text-align: center;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("## 🔒 関係者専用アクセス")
+        st.caption("利用するにはパスワードを入力してください。")
+        
+        password_input = st.text_input("パスワード", type="password", key="login_password_field")
+        
+        if st.button("ログイン", use_container_width=True):
+            if password_input == "1118":
+                st.session_state["password_correct"] = True
+                st.rerun()
+            else:
+                st.error("パスワードが正しくありません。")
+                
+    return False
+
+# 認証が成功していない場合は以降のコードを実行しない
+if not check_password():
+    st.stop()
+
+
+# --- 以降、認証後のメインアプリ画面 ---
+
 from prompt import (
     generate_instagram_post, 
     generate_reel, 
@@ -14,14 +70,7 @@ from prompt import (
     save_brand_rules
 )
 
-# --- ページ基本設定 ---
-st.set_page_config(
-    page_title="中美建設 AI広報部",
-    page_icon="🏠",
-    layout="wide"
-)
-
-# --- カスタムCSS（デザイン刷新） ---
+# --- カスタムCSS（デザイン） ---
 st.markdown("""
 <style>
     /* 全体背景とフォント設定 */
@@ -97,6 +146,13 @@ if "history" not in st.session_state:
 
 # --- サイドバー表示 ---
 st.sidebar.markdown("<h2 style='color: #5EB0B1; font-weight: bold;'>🏠 中美建設 AI広報部</h2>", unsafe_allow_html=True)
+
+# ログアウトボタン
+if st.sidebar.button("🔒 ログアウト"):
+    st.session_state["password_correct"] = False
+    st.rerun()
+
+st.sidebar.markdown("---")
 
 menu = st.sidebar.radio(
     "メニューを選択",
