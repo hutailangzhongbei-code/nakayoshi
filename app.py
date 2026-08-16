@@ -7,7 +7,7 @@ load_dotenv()
 
 # --- ページ基本設定 ---
 st.set_page_config(
-    page_title="中美建設 AI広報部",
+    page_title="住宅会社 AI広報部",
     page_icon="🏠",
     layout="wide"
 )
@@ -125,7 +125,7 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 # --- サイドバー ---
-st.sidebar.markdown("<h2 style='color: #5EB0B1; font-weight: bold;'>🏠 中美建設 AI広報部</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='color: #5EB0B1; font-weight: bold;'>🏠 AI広報部</h2>", unsafe_allow_html=True)
 
 if st.sidebar.button("🔒 ログアウト"):
     st.session_state["password_correct"] = False
@@ -146,17 +146,6 @@ menu = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-with st.sidebar.expander("🚀 今後追加予定の機能"):
-    st.caption("""
-    ・Instagramトレンド分析  
-    ・Instagram API連携  
-    ・Canva連携  
-    ・AI画像生成  
-    ・施工事例管理  
-    ・投稿カレンダー
-    """)
-
-st.sidebar.caption("© 中美建設")
 
 # --- メインコンテンツ ---
 
@@ -207,14 +196,14 @@ if menu == "Instagram投稿作成":
         
         if submit_btn:
             if not genre or not target or not purpose or not content:
-                st.warning("すべての入力項目（ジャンル・ターゲット・目的・伝えたい内容）を入力してください。")
+                st.warning("すべての入力項目を入力してください。")
             else:
                 st.session_state["genre"] = genre
                 st.session_state["target"] = target
                 st.session_state["purpose"] = purpose
                 st.session_state["content"] = content
 
-                with st.spinner("ブランドガイドラインに沿って生成中..."):
+                with st.spinner("生成中..."):
                     try:
                         res = generate_instagram_post(genre, target, purpose, content, char_count)
                         st.session_state["latest_res"] = res
@@ -233,7 +222,7 @@ if menu == "Instagram投稿作成":
                 st.markdown(f"**キャッチコピー:**\n{res.get('catchphrase')}")
                 st.markdown("</div>", unsafe_allow_html=True)
 
-                st.write("▼ キャプション（コピーしてそのまま使えます）")
+                st.write("▼ キャプション")
                 st.code(res.get('caption'), language=None)
                 
                 st.write("▼ ハッシュタグ")
@@ -293,7 +282,7 @@ elif menu == "ブログ作成":
     st.markdown("<div class='main-title'>ブログ・Web記事作成</div>", unsafe_allow_html=True)
     
     st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
-    title_kw = st.text_input("キーワード / テーマ", placeholder="例：注文住宅 高気密高断熱 三重県")
+    title_kw = st.text_input("キーワード / テーマ", placeholder="例：注文住宅 高気密高断熱")
     target = st.text_input("想定読者", placeholder="例：冬暖かい家を建てたいファミリー")
     btn = st.button("ブログ記事を生成", use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -347,7 +336,7 @@ elif menu == "ブランドガイドライン":
     new_rule = st.text_area("brand/brand_rule.txt の内容", current_rule, height=350)
     if st.button("ガイドラインを更新・保存", use_container_width=True):
         save_brand_rules(new_rule)
-        st.success("ガイドラインを保存しました！今後の生成に即時反映されます。")
+        st.success("ガイドラインを保存しました！")
     st.markdown("</div>", unsafe_allow_html=True)
 
 # 6. 投稿履歴
