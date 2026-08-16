@@ -194,19 +194,25 @@ if menu == "Instagram投稿作成":
         st.markdown("<div class='custom-card'>", unsafe_allow_html=True)
         st.markdown("<div class='sub-title'>📋 投稿条件を入力</div>", unsafe_allow_html=True)
         
-        # クイックテンプレート入力
-        st.write("💡 クイック入力（テンプレート）:")
-        t_col1, t_col2 = st.columns(2)
-        if t_col1.button("🏡 完成見学会"):
+        # --- ジャンル専用クイック入力ボタン ---
+        st.write("💡 クイックジャンル選択:")
+        q_col1, q_col2, q_col3 = st.columns(3)
+        if q_col1.button("🏡 完成見学会"):
             st.session_state["genre"] = "完成見学会"
-            st.session_state["target"] = "30代子育て世代・自然素材の家に憧れるご夫婦"
-            st.session_state["purpose"] = "見学会の来場予約獲得"
-            st.session_state["content"] = "開放的な吹抜けLDKと、家事動線を考慮した回遊間取り。無垢材の心地よさを体感できるお家です。"
-        if t_col2.button("✨ 施工事例紹介"):
-            st.session_state["genre"] = "施工事例"
-            st.session_state["target"] = "注文住宅を検討中のファミリー"
-            st.session_state["purpose"] = "認知拡大・アカウントのファン化"
-            st.session_state["content"] = "木感が引き立つ造作キッチンとこだわりの和モダン外観。職人の手仕事が光る細部のデザイン。"
+        if q_col2.button("✨ 施工事例"):
+            st.session_state["genre"] = "施工事例・実例紹介"
+        if q_col3.button("🏗️ 構造見学会"):
+            st.session_state["genre"] = "構造見学会・現場レポ"
+
+        q_col4, q_col5, q_col6 = st.columns(3)
+        if q_col4.button("📹 ルームツアー"):
+            st.session_state["genre"] = "ルームツアー・Web内覧会"
+        if q_col5.button("👥 スタッフ日常"):
+            st.session_state["genre"] = "スタッフ・会社・現場の日常"
+        if q_col6.button("💬 お客様の声"):
+            st.session_state["genre"] = "オーナー様インタビュー・お客様の声"
+
+        st.markdown("<div style='margin-bottom: 15px;'></div>", unsafe_allow_html=True)
 
         genre = st.text_input("投稿ジャンル", value=st.session_state.get("genre", ""), placeholder="例: 完成見学会 / 施工事例 / 木の家")
         target = st.text_input("ターゲット", value=st.session_state.get("target", ""), placeholder="例: 自然素材の家に憧れる30代夫婦")
@@ -225,6 +231,12 @@ if menu == "Instagram投稿作成":
             if not genre or not target or not purpose or not content:
                 st.warning("すべての入力項目（ジャンル・ターゲット・目的・伝えたい内容）を入力してください。")
             else:
+                # 入力された値を保持
+                st.session_state["genre"] = genre
+                st.session_state["target"] = target
+                st.session_state["purpose"] = purpose
+                st.session_state["content"] = content
+
                 with st.spinner("ブランドガイドラインに沿って生成中..."):
                     try:
                         res = generate_instagram_post(genre, target, purpose, content, char_count)
