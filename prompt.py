@@ -43,7 +43,7 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
     init_gemini()
     brand_rule = load_brand_rules()
     
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
     json_template = """{
     "title": "投稿タイトル",
@@ -63,11 +63,11 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
         "【ブランドガイドライン】\n"
         + str(brand_rule) + "\n\n"
         "【依頼内容】\n"
-        + f"- 投稿ジャンル: {genre}\n"
-        + f"- ターゲット: {target}\n"
-        + f"- 投稿目的: {purpose}\n"
-        + f"- 伝えたい内容: {content}\n"
-        + f"- キャプション文字数目安: {char_count}文字程度\n\n"
+        "- 投稿ジャンル: " + str(genre) + "\n"
+        "- ターゲット: " + str(target) + "\n"
+        "- 投稿目的: " + str(purpose) + "\n"
+        "- 伝えたい内容: " + str(content) + "\n"
+        "- キャプション文字数目安: " + str(char_count) + "文字程度\n\n"
         "以下のキーを持つ完全なJSONフォーマットのみで出力してください。\n\n"
         + json_template
     )
@@ -80,7 +80,7 @@ def generate_reel(theme: str, target: str) -> dict:
     init_gemini()
     brand_rule = load_brand_rules()
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
     json_template = """{
     "hook": "冒頭3秒のフック（惹きつけるテキストまたは演出）",
@@ -94,8 +94,8 @@ def generate_reel(theme: str, target: str) -> dict:
         "【ブランドガイドライン】\n"
         + str(brand_rule) + "\n\n"
         "【条件】\n"
-        + f"- 動画テーマ: {theme}\n"
-        + f"- ターゲット: {target}\n\n"
+        "- 動画テーマ: " + str(theme) + "\n"
+        "- ターゲット: " + str(target) + "\n\n"
         "以下のJSONフォーマットのみで出力してください。\n"
         + json_template
     )
@@ -108,7 +108,7 @@ def generate_blog(title_kw: str, target: str) -> str:
     init_gemini()
     brand_rule = load_brand_rules()
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
     system_prompt = (
         "あなたは住宅会社のWebライターです。\n"
@@ -116,8 +116,8 @@ def generate_blog(title_kw: str, target: str) -> str:
         "【ブランドガイドライン】\n"
         + str(brand_rule) + "\n\n"
         "【条件】\n"
-        + f"- キーワード/テーマ: {title_kw}\n"
-        + f"- 想定読者: {target}\n\n"
+        "- キーワード/テーマ: " + str(title_kw) + "\n"
+        "- 想定読者: " + str(target) + "\n\n"
         "見出し（H2, H3）を適切に使い、読者が惹き込まれる自然でわかりやすい文章を作成してください。"
     )
 
@@ -129,7 +129,7 @@ def generate_shooting(house_type: str, highlights: str) -> str:
     init_gemini()
     brand_rule = load_brand_rules()
 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
     system_prompt = (
         "あなたは住宅建築のプロフェッショナルです。\n"
@@ -137,8 +137,8 @@ def generate_shooting(house_type: str, highlights: str) -> str:
         "【ブランドガイドライン】\n"
         + str(brand_rule) + "\n\n"
         "【条件】\n"
-        + f"- 物件特徴: {house_type}\n"
-        + f"- 見せたいポイント: {highlights}\n\n"
+        "- 物件特徴: " + str(house_type) + "\n"
+        "- 見せたいポイント: " + str(highlights) + "\n\n"
         "カメラマンや現場スタッフが迷わないよう、具体的な撮影アングル、時間帯、小物の配置、光の取り込み方などをリスト形式で作成してください。"
     )
 
