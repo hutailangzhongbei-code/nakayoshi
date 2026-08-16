@@ -139,4 +139,17 @@ def generate_shooting(house_type: str, highlights: str) -> str:
 
     system_prompt = f"""
 あなたは住宅建築のプロフェッショナルです。
-ルームツアー動画やSNS投稿用写真のための「撮影指示書」を作成
+ルームツアー動画やSNS投稿用写真のための「撮影指示書」を作成してください。
+
+【ブランドガイドライン】
+{brand_rule}
+
+【条件】
+- 物件特徴: {house_type}
+- 見せたいポイント: {highlights}
+
+カメラマンや現場スタッフが迷わないよう、具体的な撮影アングル、時間帯、小物の配置、光の取り込み方などをリスト形式で作成してください。
+"""
+
+    response = model.generate_content(system_prompt)
+    return response.text
