@@ -7,7 +7,7 @@ load_dotenv()
 
 # --- ページ基本設定 ---
 st.set_page_config(
-    page_title="住宅会社 AI広報部",
+    page_title="AI広報部",
     page_icon="🏠",
     layout="wide"
 )
