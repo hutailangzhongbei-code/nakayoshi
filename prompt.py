@@ -1,7 +1,8 @@
 import os
 import re
 import json
-import google.generativeai as genai
+from google import genai
+
 
 # --- Gemini APIの初期化 ---
 def init_gemini():
