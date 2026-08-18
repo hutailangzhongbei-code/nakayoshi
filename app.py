@@ -25,58 +25,179 @@ from prompt import (
 )
 
 # --- カスタムCSS ---
+# デザインコンセプト：住宅の「設計図(ブループリント)」×「無垢材」
+# 色: 図面紙の白 / ブループリント紺(見出し・構造) / 木の色(アクセント・CTA)
 st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-    .stApp {
-        background-color: #F8FAFC;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    :root {
+        --bg: #F4F5F0;
+        --surface: #FFFFFF;
+        --ink: #202A22;
+        --ink-soft: #667066;
+        --blueprint: #2F4858;
+        --wood: #A8763E;
+        --line: #DAD6C8;
+        --grid: rgba(47, 72, 88, 0.05);
     }
+
+    html, body, [class*="css"] {
+        font-family: 'Zen Kaku Gothic New', -apple-system, sans-serif;
+        color: var(--ink);
+    }
+
+    .stApp {
+        background-color: var(--bg);
+        background-image:
+            linear-gradient(var(--grid) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 28px 28px;
+    }
+
+    /* カード：図面のトンボ(レジストレーションマーク)を四隅に配置 */
     .custom-card {
-        background-color: #FFFFFF;
-        padding: 24px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        border: 1px solid #E2E8F0;
-        margin-bottom: 20px;
+        background-color: var(--surface);
+        padding: 28px 26px;
+        border-radius: 3px;
+        border: 1px solid var(--line);
+        margin-bottom: 22px;
+        background-image:
+            linear-gradient(var(--blueprint) 2px, transparent 2px),
+            linear-gradient(var(--blueprint) 2px, transparent 2px),
+            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px),
+            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px),
+            linear-gradient(var(--blueprint) 2px, transparent 2px),
+            linear-gradient(var(--blueprint) 2px, transparent 2px),
+            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px),
+            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px);
+        background-position: 0 0, 0 100%, 0 0, 100% 0, 100% 0, 100% 100%, 0 100%, 100% 100%;
+        background-repeat: no-repeat;
+        background-size: 14px 14px;
+    }
+
+    .section-heading { margin-bottom: 26px; }
+    .eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--wood);
+        margin-bottom: 6px;
     }
     .main-title {
-        color: #2D3748;
-        font-size: 24px;
+        font-family: 'Zen Old Mincho', serif;
+        font-size: 26px;
         font-weight: 700;
-        border-left: 6px solid #5EB0B1;
-        padding-left: 12px;
-        margin-bottom: 20px;
+        color: var(--ink);
+        padding-bottom: 14px;
+        position: relative;
     }
+    .main-title::after {
+        content: "";
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 1px;
+        background-image: repeating-linear-gradient(90deg, var(--blueprint) 0 8px, transparent 8px 14px);
+    }
+
     .sub-title {
-        color: #4A5568;
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
     }
+
     .highlight-box {
-        background-color: #FFFDF0;
-        border: 1px solid #FEEBC8;
-        border-left: 5px solid #EEC600;
-        padding: 16px;
-        border-radius: 8px;
+        background-color: #FBF9F3;
+        border: 1px dashed var(--wood);
+        border-left: 3px solid var(--wood);
+        padding: 16px 18px;
+        border-radius: 2px;
         margin-bottom: 16px;
     }
+
     .stButton>button {
-        background-color: #5EB0B1 !important;
-        color: white !important;
+        background-color: var(--blueprint) !important;
+        color: #FFFFFF !important;
+        font-family: 'Zen Kaku Gothic New', sans-serif !important;
         font-weight: 600 !important;
-        border-radius: 8px !important;
-        border: none !important;
+        letter-spacing: 0.03em;
+        border-radius: 2px !important;
+        border: 1px solid var(--blueprint) !important;
         padding: 10px 20px !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.15s ease !important;
     }
     .stButton>button:hover {
-        background-color: #4A9798 !important;
-        box-shadow: 0 4px 12px rgba(94, 176, 177, 0.3) !important;
+        background-color: var(--wood) !important;
+        border-color: var(--wood) !important;
+        box-shadow: none !important;
     }
+
     [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E2E8F0;
+        background-color: var(--surface);
+        border-right: 1px solid var(--line);
+    }
+
+    .sidebar-stamp {
+        padding: 18px 4px 18px;
+        border-bottom: 2px solid var(--blueprint);
+        margin-bottom: 14px;
+    }
+    .stamp-eyebrow {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        color: var(--wood);
+        margin-bottom: 4px;
+    }
+    .stamp-title {
+        font-family: 'Zen Old Mincho', serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .title-block {
+        border: 1px solid var(--line);
+        border-radius: 2px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        overflow: hidden;
+    }
+    .title-block-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 7px 10px;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-soft);
+    }
+    .title-block-row:last-child { border-bottom: none; }
+    .title-block-row span:first-child {
+        letter-spacing: 0.08em;
+        color: var(--wood);
+    }
+
+    [data-baseweb="tab-list"] {
+        gap: 4px;
+        border-bottom: 1px solid var(--line);
+    }
+    [data-baseweb="tab"] {
+        font-family: 'Zen Kaku Gothic New', sans-serif;
+        font-weight: 600;
+        color: var(--ink-soft);
+    }
+    [data-baseweb="tab-highlight"] {
+        background-color: var(--wood) !important;
+    }
+
+    div[data-testid="stAlert"] {
+        border-radius: 2px;
+        font-family: 'Zen Kaku Gothic New', sans-serif;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -111,11 +232,28 @@ def add_history(item_type: str, title: str, content: str):
     st.session_state.history.append({"type": item_type, "title": title, "content": content})
 
 
+def section_title(title: str, eyebrow: str):
+    """図面の表題欄風の見出し（小さな英字ラベル＋明朝体タイトル＋寸法線）を表示する。"""
+    st.markdown(
+        f"""<div class="section-heading">
+            <div class="eyebrow">{eyebrow}</div>
+            <div class="main-title">{title}</div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
 API_KEY_SET = bool(os.getenv("GEMINI_API_KEY"))
 
 
 # --- サイドバー ---
-st.sidebar.markdown("<h2 style='color: #5EB0B1; font-weight: bold;'>🏠 AI広報部</h2>", unsafe_allow_html=True)
+st.sidebar.markdown(
+    """<div class="sidebar-stamp">
+        <div class="stamp-eyebrow">SNS / WEB PLANNING TOOL</div>
+        <div class="stamp-title">🏠 AI広報部</div>
+    </div>""",
+    unsafe_allow_html=True,
+)
 
 menu = st.sidebar.radio(
     "メニューを選択",
@@ -131,6 +269,15 @@ menu = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
+# 図面の表題欄(タイトルブロック)風に、選択中のシート(メニュー)を表示
+st.sidebar.markdown(
+    f"""<div class="title-block">
+        <div class="title-block-row"><span>PROJECT</span><span>AI広報部</span></div>
+        <div class="title-block-row"><span>SHEET</span><span>{menu}</span></div>
+    </div>""",
+    unsafe_allow_html=True,
+)
+
 # 生成系メニュー全てで共通してAPIキーが必要なため、ここで一括チェック
 GENERATION_MENUS = {"Instagram投稿作成", "リール企画", "ブログ作成", "撮影指示"}
 if menu in GENERATION_MENUS and not API_KEY_SET:
@@ -140,7 +287,7 @@ if menu in GENERATION_MENUS and not API_KEY_SET:
 
 # 1. Instagram投稿作成
 if menu == "Instagram投稿作成":
-    st.markdown("<div class='main-title'>Instagram投稿作成</div>", unsafe_allow_html=True)
+    section_title("Instagram投稿作成", "SHEET 01 — INSTAGRAM POST")
 
     col_input, col_result = st.columns([1, 1])
 
@@ -235,7 +382,7 @@ if menu == "Instagram投稿作成":
 
 # 2. リール企画
 elif menu == "リール企画":
-    st.markdown("<div class='main-title'>リール企画案作成</div>", unsafe_allow_html=True)
+    section_title("リール企画案作成", "SHEET 02 — SHORT VIDEO REEL")
 
     with card():
         theme = st.text_input("動画テーマ", placeholder="例：ルームツアー、平屋のメリット3選")
@@ -260,7 +407,7 @@ elif menu == "リール企画":
 
 # 3. ブログ作成
 elif menu == "ブログ作成":
-    st.markdown("<div class='main-title'>ブログ・Web記事作成</div>", unsafe_allow_html=True)
+    section_title("ブログ・Web記事作成", "SHEET 03 — ARTICLE")
 
     with card():
         title_kw = st.text_input("キーワード / テーマ", placeholder="例：注文住宅 高気密高断熱")
@@ -283,7 +430,7 @@ elif menu == "ブログ作成":
 
 # 4. 撮影指示
 elif menu == "撮影指示":
-    st.markdown("<div class='main-title'>現場・物件 撮影指示書作成</div>", unsafe_allow_html=True)
+    section_title("現場・物件 撮影指示書作成", "SHEET 04 — SITE PHOTOGRAPHY")
 
     with card():
         house_type = st.text_input("物件特徴", placeholder="例：開放感のある吹抜けリビングと平屋風動線")
@@ -306,7 +453,7 @@ elif menu == "撮影指示":
 
 # 5. ブランドガイドライン
 elif menu == "ブランドガイドライン":
-    st.markdown("<div class='main-title'>ブランドガイドライン管理</div>", unsafe_allow_html=True)
+    section_title("ブランドガイドライン管理", "SHEET 05 — BRAND GUIDELINE")
 
     with card():
         current_rule = load_brand_rules()
@@ -320,7 +467,7 @@ elif menu == "ブランドガイドライン":
 
 # 6. 投稿履歴
 elif menu == "投稿履歴":
-    st.markdown("<div class='main-title'>投稿履歴</div>", unsafe_allow_html=True)
+    section_title("投稿履歴", "SHEET 06 — ARCHIVE")
 
     if not st.session_state.history:
         st.info("まだ生成履歴はありません。")
