@@ -479,4 +479,4 @@ elif menu == "投稿履歴":
         for item in reversed(st.session_state.history):
             with card():
                 st.markdown(f"**【{item['type']}】 {item['title']}**")
-                st.code(item["content"], language=None)
+                st.code(item["content"],
