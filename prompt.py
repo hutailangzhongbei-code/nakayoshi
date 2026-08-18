@@ -3,21 +3,20 @@ import re
 import json
 from google import genai
 
-
-# --- Gemini APIの初期化 ---
-def init_gemini():
+# --- Gemini APIクライアントの初期化 ---
+# 旧SDK(google-generativeai)は2025年8月に非推奨となり、現在はレガシー扱いのため
+# 新しい統合SDK(google-genai)に移行しています。
+def get_client() -> genai.Client:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY が設定されていません。")
-    genai.configure(api_key=api_key)
+    return genai.Client(api_key=api_key)
 
 
 # --- エラー時に使えるモデルを順番に試す自動リトライ生成関数 ---
 #
 # 注意（2026年8月時点）: gemini-2.0-flash / gemini-1.5-flash / gemini-1.5-pro / gemini-pro は
 # いずれも提供終了(シャットダウン)済みで、リクエストは404になります。
-# 古いモデル名を候補に残すと「全部失敗して例外を投げる」だけの無駄なリトライになるため、
-# 現行の稼働モデルのみをリストにしています。
 # 参考: https://ai.google.dev/gemini-api/docs/deprecations
 CANDIDATE_MODELS = [
     "gemini-flash-latest",   # 常に最新のFlashモデルを指すエイリアス（自動追従）
@@ -27,14 +26,16 @@ CANDIDATE_MODELS = [
 
 
 def generate_with_fallback(prompt_text: str) -> str:
-    init_gemini()
+    client = get_client()
 
     last_exception = None
 
     for model_name in CANDIDATE_MODELS:
         try:
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(prompt_text)
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt_text,
+            )
             text = _extract_text(response)
             if text:
                 return text
