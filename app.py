@@ -25,20 +25,20 @@ from prompt import (
 )
 
 # --- カスタムCSS ---
-# デザインコンセプト：住宅の「設計図(ブループリント)」×「無垢材」
-# 色: 図面紙の白 / ブループリント紺(見出し・構造) / 木の色(アクセント・CTA)
+# デザインコンセプト：なかよし建設のロゴ配色（ティール×マスタード×白）に準拠
+# 見出し下の点線はロゴの斜めチェブロン柄をモチーフにしています
 st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
     :root {
-        --bg: #F4F5F0;
+        --bg: #F7FAF9;
         --surface: #FFFFFF;
-        --ink: #202A22;
-        --ink-soft: #667066;
-        --blueprint: #2F4858;
-        --wood: #A8763E;
-        --line: #DAD6C8;
-        --grid: rgba(47, 72, 88, 0.05);
+        --ink: #223532;
+        --ink-soft: #6B7C79;
+        --teal: #3FAFAA;
+        --teal-dark: #2E8E8A;
+        --gold: #D9A441;
+        --line: #DCE7E5;
     }
 
     html, body, [class*="css"] {
@@ -48,56 +48,48 @@ st.markdown("""
 
     .stApp {
         background-color: var(--bg);
-        background-image:
-            linear-gradient(var(--grid) 1px, transparent 1px),
-            linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-        background-size: 28px 28px;
     }
 
-    /* カード：図面のトンボ(レジストレーションマーク)を四隅に配置 */
     .custom-card {
         background-color: var(--surface);
         padding: 28px 26px;
-        border-radius: 3px;
+        border-radius: 14px;
         border: 1px solid var(--line);
+        box-shadow: 0 2px 10px -4px rgba(34, 53, 50, 0.08);
         margin-bottom: 22px;
-        background-image:
-            linear-gradient(var(--blueprint) 2px, transparent 2px),
-            linear-gradient(var(--blueprint) 2px, transparent 2px),
-            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px),
-            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px),
-            linear-gradient(var(--blueprint) 2px, transparent 2px),
-            linear-gradient(var(--blueprint) 2px, transparent 2px),
-            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px),
-            linear-gradient(90deg, var(--blueprint) 2px, transparent 2px);
-        background-position: 0 0, 0 100%, 0 0, 100% 0, 100% 0, 100% 100%, 0 100%, 100% 100%;
-        background-repeat: no-repeat;
-        background-size: 14px 14px;
     }
 
     .section-heading { margin-bottom: 26px; }
     .eyebrow {
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
-        color: var(--wood);
+        color: var(--gold);
         margin-bottom: 6px;
     }
     .main-title {
-        font-family: 'Zen Old Mincho', serif;
+        font-family: 'Zen Kaku Gothic New', sans-serif;
         font-size: 26px;
-        font-weight: 700;
+        font-weight: 900;
+        letter-spacing: 0.03em;
         color: var(--ink);
-        padding-bottom: 14px;
+        padding-bottom: 16px;
         position: relative;
     }
+    /* ロゴの斜めチェブロン柄をモチーフにした区切り線 */
     .main-title::after {
         content: "";
         position: absolute;
-        left: 0; right: 0; bottom: 0;
-        height: 1px;
-        background-image: repeating-linear-gradient(90deg, var(--blueprint) 0 8px, transparent 8px 14px);
+        left: 0; bottom: 0;
+        width: 96px;
+        height: 8px;
+        background-image:
+            linear-gradient(115deg, transparent 40%, var(--gold) 40%, var(--gold) 55%, transparent 55%),
+            linear-gradient(115deg, transparent 40%, var(--teal) 40%, var(--teal) 55%, transparent 55%);
+        background-size: 16px 8px, 16px 8px;
+        background-position: 0 0, 8px 0;
+        background-repeat: repeat-x;
     }
 
     .sub-title {
@@ -112,29 +104,28 @@ st.markdown("""
     }
 
     .highlight-box {
-        background-color: #FBF9F3;
-        border: 1px dashed var(--wood);
-        border-left: 3px solid var(--wood);
+        background-color: #FDF7EA;
+        border: 1px solid #F1DDA8;
+        border-left: 4px solid var(--gold);
         padding: 16px 18px;
-        border-radius: 2px;
+        border-radius: 10px;
         margin-bottom: 16px;
     }
 
     .stButton>button {
-        background-color: var(--blueprint) !important;
+        background-color: var(--teal) !important;
         color: #FFFFFF !important;
         font-family: 'Zen Kaku Gothic New', sans-serif !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         letter-spacing: 0.03em;
-        border-radius: 2px !important;
-        border: 1px solid var(--blueprint) !important;
-        padding: 10px 20px !important;
+        border-radius: 999px !important;
+        border: none !important;
+        padding: 10px 22px !important;
         transition: all 0.15s ease !important;
     }
     .stButton>button:hover {
-        background-color: var(--wood) !important;
-        border-color: var(--wood) !important;
-        box-shadow: none !important;
+        background-color: var(--teal-dark) !important;
+        box-shadow: 0 4px 12px rgba(63, 175, 170, 0.3) !important;
     }
 
     [data-testid="stSidebar"] {
@@ -144,26 +135,27 @@ st.markdown("""
 
     .sidebar-stamp {
         padding: 18px 4px 18px;
-        border-bottom: 2px solid var(--blueprint);
+        border-bottom: 2px solid var(--teal);
         margin-bottom: 14px;
     }
     .stamp-eyebrow {
         font-family: 'JetBrains Mono', monospace;
         font-size: 10px;
         letter-spacing: 0.16em;
-        color: var(--wood);
+        color: var(--gold);
         margin-bottom: 4px;
     }
     .stamp-title {
-        font-family: 'Zen Old Mincho', serif;
+        font-family: 'Zen Kaku Gothic New', sans-serif;
         font-size: 22px;
-        font-weight: 700;
+        font-weight: 900;
+        letter-spacing: 0.03em;
         color: var(--ink);
     }
 
     .title-block {
         border: 1px solid var(--line);
-        border-radius: 2px;
+        border-radius: 10px;
         font-family: 'JetBrains Mono', monospace;
         font-size: 11px;
         overflow: hidden;
@@ -179,7 +171,7 @@ st.markdown("""
     .title-block-row:last-child { border-bottom: none; }
     .title-block-row span:first-child {
         letter-spacing: 0.08em;
-        color: var(--wood);
+        color: var(--gold);
     }
 
     [data-baseweb="tab-list"] {
@@ -192,11 +184,11 @@ st.markdown("""
         color: var(--ink-soft);
     }
     [data-baseweb="tab-highlight"] {
-        background-color: var(--wood) !important;
+        background-color: var(--teal) !important;
     }
 
     div[data-testid="stAlert"] {
-        border-radius: 2px;
+        border-radius: 10px;
         font-family: 'Zen Kaku Gothic New', sans-serif;
     }
 </style>
@@ -320,6 +312,15 @@ if menu == "Instagram投稿作成":
             content = st.text_area("伝えたい内容", value=st.session_state.get("content", ""), placeholder="例: 吹抜けLDK、無垢床、造作洗面台", height=100)
             char_count = st.slider("文字数目安", min_value=200, max_value=1200, value=600, step=50)
 
+            uploaded_photos = st.file_uploader(
+                "📷 物件写真を添付（任意・複数可）",
+                type=["jpg", "jpeg", "png", "webp"],
+                accept_multiple_files=True,
+                help="写真を添付すると、写っている内容を踏まえてキャプションやカルーセル構成を考えます。",
+            )
+            if uploaded_photos:
+                st.image(uploaded_photos, width=110)
+
             submit_btn = st.button("✨ 投稿案を生成する", use_container_width=True, disabled=not API_KEY_SET)
 
     with col_result:
@@ -337,7 +338,8 @@ if menu == "Instagram投稿作成":
 
                     with st.spinner("生成中..."):
                         try:
-                            res = generate_instagram_post(genre, target, purpose, content, char_count)
+                            images = [(f.getvalue(), f.name) for f in (uploaded_photos or [])]
+                            res = generate_instagram_post(genre, target, purpose, content, char_count, images=images)
                             st.session_state["latest_res"] = res
                             add_history("Instagram", g(res, "title", "(無題)"), g(res, "caption"))
                         except Exception as e:
@@ -479,4 +481,4 @@ elif menu == "投稿履歴":
         for item in reversed(st.session_state.history):
             with card():
                 st.markdown(f"**【{item['type']}】 {item['title']}**")
-                st.code(item["content"],
+                st.code(item["content"], language=None)
