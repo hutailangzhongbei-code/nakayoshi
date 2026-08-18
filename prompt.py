@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import google.generativeai as genai
 
@@ -9,34 +10,61 @@ def init_gemini():
         raise ValueError("GEMINI_API_KEY が設定されていません。")
     genai.configure(api_key=api_key)
 
+
 # --- エラー時に使えるモデルを順番に試す自動リトライ生成関数 ---
+#
+# 注意（2026年8月時点）: gemini-2.0-flash / gemini-1.5-flash / gemini-1.5-pro / gemini-pro は
+# いずれも提供終了(シャットダウン)済みで、リクエストは404になります。
+# 古いモデル名を候補に残すと「全部失敗して例外を投げる」だけの無駄なリトライになるため、
+# 現行の稼働モデルのみをリストにしています。
+# 参考: https://ai.google.dev/gemini-api/docs/deprecations
+CANDIDATE_MODELS = [
+    "gemini-flash-latest",   # 常に最新のFlashモデルを指すエイリアス（自動追従）
+    "gemini-2.5-flash",      # 安定版（2026年10月16日以降に終了予定 - 要定期確認）
+    "gemini-3.1-flash-lite", # 軽量・低コストな最新モデル
+]
+
+
 def generate_with_fallback(prompt_text: str) -> str:
     init_gemini()
-    
-    # 試行するモデルの優先順序リスト
-    candidate_models = [
-        "gemini-2.0-flash",
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-        "gemini-pro"
-    ]
-    
+
     last_exception = None
-    
-    for model_name in candidate_models:
+
+    for model_name in CANDIDATE_MODELS:
         try:
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(prompt_text)
-            if response and response.text:
-                return response.text
+            text = _extract_text(response)
+            if text:
+                return text
         except Exception as e:
             last_exception = e
             continue  # エラーが起きた場合は次のモデルを試す
-            
-    raise RuntimeError(f"利用可能なモデルが見つかりませんでした。詳細: {last_exception}")
+
+    raise RuntimeError(
+        f"利用可能なモデルが見つかりませんでした（候補: {', '.join(CANDIDATE_MODELS)}）。"
+        f"詳細: {last_exception}"
+    )
+
+
+def _extract_text(response) -> str:
+    """response.text へのアクセスで発生しうる例外（安全フィルタ等）を分かりやすく変換する。"""
+    try:
+        return response.text
+    except Exception as e:
+        reason = None
+        try:
+            reason = response.candidates[0].finish_reason
+        except Exception:
+            pass
+        raise ValueError(
+            f"Geminiから有効なテキスト応答を取得できませんでした（finish_reason={reason}）。"
+        ) from e
+
 
 # --- ブランドルール読み込み・保存機能 ---
 BRAND_RULE_PATH = "brand/brand_rule.txt"
+
 
 def load_brand_rules() -> str:
     if os.path.exists(BRAND_RULE_PATH):
@@ -47,22 +75,37 @@ def load_brand_rules() -> str:
             return ""
     return ""
 
+
 def save_brand_rules(content: str):
     os.makedirs(os.path.dirname(BRAND_RULE_PATH), exist_ok=True)
     with open(BRAND_RULE_PATH, "w", encoding="utf-8") as f:
         f.write(content)
 
+
 # --- JSONパース用補助関数 ---
 def clean_json_response(text: str) -> dict:
-    """Geminiの返答からコードブロックを除去してJSONにパースする"""
-    text = text.strip()
-    if text.startswith("```json"):
-        text = text[7:]
-    if text.startswith("```"):
-        text = text[3:]
-    if text.endswith("```"):
-        text = text[:-3]
-    return json.loads(text.strip())
+    """Geminiの返答からコードブロック（```json ... ```など）を除去してJSONにパースする。
+
+    固定文字数の切り出しではなく正規表現を使うことで、
+    前後に空白や余分な文字列が付いても崩れないようにしている。
+    """
+    if not text or not text.strip():
+        raise ValueError("Geminiからの応答が空でした。安全フィルタ等でブロックされた可能性があります。")
+
+    stripped = text.strip()
+
+    match = re.search(r"```(?:json)?\s*(.*?)\s*```", stripped, re.DOTALL)
+    json_str = match.group(1) if match else stripped
+
+    try:
+        return json.loads(json_str)
+    except json.JSONDecodeError as e:
+        preview = stripped[:300]
+        raise ValueError(
+            f"Geminiの応答をJSONとして解析できませんでした: {e}\n"
+            f"--- 応答の冒頭300文字 ---\n{preview}"
+        ) from e
+
 
 # --- 1. Instagram投稿生成 ---
 def generate_instagram_post(genre: str, target: str, purpose: str, content: str, char_count: int = 600) -> dict:
@@ -98,6 +141,7 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
     response_text = generate_with_fallback(system_prompt)
     return clean_json_response(response_text)
 
+
 # --- 2. リール企画生成 ---
 def generate_reel(theme: str, target: str) -> dict:
     brand_rule = load_brand_rules()
@@ -123,6 +167,7 @@ def generate_reel(theme: str, target: str) -> dict:
     response_text = generate_with_fallback(system_prompt)
     return clean_json_response(response_text)
 
+
 # --- 3. ブログ作成 ---
 def generate_blog(title_kw: str, target: str) -> str:
     brand_rule = load_brand_rules()
@@ -139,6 +184,7 @@ def generate_blog(title_kw: str, target: str) -> str:
     )
 
     return generate_with_fallback(system_prompt)
+
 
 # --- 4. 撮影指示書作成 ---
 def generate_shooting(house_type: str, highlights: str) -> str:
