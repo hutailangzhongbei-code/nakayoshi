@@ -2,6 +2,7 @@ import os
 import re
 import json
 from google import genai
+from google.genai import types
 
 # --- Gemini APIクライアントの初期化 ---
 # 旧SDK(google-generativeai)は2025年8月に非推奨となり、現在はレガシー扱いのため
@@ -24,9 +25,37 @@ CANDIDATE_MODELS = [
     "gemini-3.1-flash-lite", # 軽量・低コストな最新モデル
 ]
 
+# アップロード画像として許可する拡張子・MIMEタイプの対応表
+ALLOWED_IMAGE_MIME_TYPES = {
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "webp": "image/webp",
+}
 
-def generate_with_fallback(prompt_text: str) -> str:
+
+def build_image_parts(images: list) -> list:
+    """(bytes, ファイル名) のリストから Gemini 用の画像パーツを組み立てる。
+    imagesが空/Noneの場合は空リストを返す。
+    """
+    if not images:
+        return []
+
+    parts = []
+    for image_bytes, filename in images:
+        ext = (filename.rsplit(".", 1)[-1] if "." in filename else "").lower()
+        mime_type = ALLOWED_IMAGE_MIME_TYPES.get(ext)
+        if not mime_type:
+            # 拡張子が想定外の場合はスキップ（呼び出し側でアップロード時に弾いている想定だが念のため）
+            continue
+        parts.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
+    return parts
+
+
+def generate_with_fallback(prompt_text: str, images: list = None) -> str:
     client = get_client()
+
+    contents = [prompt_text] + build_image_parts(images)
 
     last_exception = None
 
@@ -34,7 +63,7 @@ def generate_with_fallback(prompt_text: str) -> str:
         try:
             response = client.models.generate_content(
                 model=model_name,
-                contents=prompt_text,
+                contents=contents,
             )
             text = _extract_text(response)
             if text:
@@ -110,7 +139,7 @@ def clean_json_response(text: str) -> dict:
 
 
 # --- 1. Instagram投稿生成 ---
-def generate_instagram_post(genre: str, target: str, purpose: str, content: str, char_count: int = 600) -> dict:
+def generate_instagram_post(genre: str, target: str, purpose: str, content: str, char_count: int = 600, images: list = None) -> dict:
     brand_rule = load_brand_rules()
 
     json_template = """{
@@ -125,6 +154,14 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
     "growth_reason": "この投稿がターゲットに響く理由・アルゴリズム上の狙い"
 }"""
 
+    photo_instruction = (
+        "\n【添付写真について】\n"
+        "あわせて物件の写真を添付しています。写真に写っている実際の特徴（間取りの雰囲気、素材、色味、"
+        "照明、家具の配置など）を具体的に読み取り、キャプションやカルーセル構成、キャッチコピーに反映してください。\n"
+        "写真から確認できない情報（施工時期・価格・工法名など）は憶測で断定せず、一般的な表現にとどめてください。\n"
+        if images else ""
+    )
+
     system_prompt = (
         "あなたは住宅会社の優秀なSNSマーケター・AI広報です。\n"
         "以下の【ブランドガイドライン】を遵守して投稿を作成してください。\n\n"
@@ -135,12 +172,13 @@ def generate_instagram_post(genre: str, target: str, purpose: str, content: str,
         "- ターゲット: " + str(target) + "\n"
         "- 投稿目的: " + str(purpose) + "\n"
         "- 伝えたい内容: " + str(content) + "\n"
-        "- キャプション文字数目安: " + str(char_count) + "文字程度\n\n"
+        "- キャプション文字数目安: " + str(char_count) + "文字程度\n"
+        + photo_instruction + "\n"
         "以下のキーを持つ完全なJSONフォーマットのみで出力してください。\n\n"
         + json_template
     )
 
-    response_text = generate_with_fallback(system_prompt)
+    response_text = generate_with_fallback(system_prompt, images=images)
     return clean_json_response(response_text)
 
 
